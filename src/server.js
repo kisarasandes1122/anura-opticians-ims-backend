@@ -16,4 +16,10 @@ app.listen(PORT, () => {
   console.log(`🔐 Auth Endpoints:`);
   console.log(`   POST http://localhost:${PORT}/api/auth/login`);
   console.log(`   GET  http://localhost:${PORT}/api/auth/me`);
+  console.log(`🏷️  Brand Endpoints:`);
+  console.log(`   GET  http://localhost:${PORT}/api/brands`);
+  console.log(`   POST http://localhost:${PORT}/api/brands (with image upload)`);
+  console.log(`📦 Item Endpoints:`);
+  console.log(`   GET  http://localhost:${PORT}/api/items (search & filter)`);
+  console.log(`   POST http://localhost:${PORT}/api/items`);
 });
