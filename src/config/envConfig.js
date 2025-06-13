@@ -14,7 +14,12 @@ const requiredEnvVars = {
   
   // JWT Configuration
   JWT_SECRET: process.env.JWT_SECRET || 'fallback-secret-key-change-in-production',
-  JWT_EXPIRE: process.env.JWT_EXPIRE || '24h'
+  JWT_EXPIRE: process.env.JWT_EXPIRE || '24h',
+  
+  // Cloudinary Configuration
+  CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME,
+  CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY,
+  CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET
 };
 
 // Check for missing required environment variables
@@ -27,6 +32,18 @@ const checkRequiredEnvVars = () => {
   
   if (!process.env.JWT_SECRET || process.env.JWT_SECRET === 'fallback-secret-key-change-in-production') {
     missing.push('JWT_SECRET');
+  }
+  
+  if (!process.env.CLOUDINARY_CLOUD_NAME) {
+    missing.push('CLOUDINARY_CLOUD_NAME');
+  }
+  
+  if (!process.env.CLOUDINARY_API_KEY) {
+    missing.push('CLOUDINARY_API_KEY');
+  }
+  
+  if (!process.env.CLOUDINARY_API_SECRET) {
+    missing.push('CLOUDINARY_API_SECRET');
   }
   
   // Only show warnings if there are actually missing variables
