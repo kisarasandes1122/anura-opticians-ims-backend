@@ -16,6 +16,10 @@ const requiredEnvVars = {
   JWT_SECRET: process.env.JWT_SECRET || 'fallback-secret-key-change-in-production',
   JWT_EXPIRE: process.env.JWT_EXPIRE || '24h',
   
+  // Email Configuration
+  RESEND_API_KEY: process.env.RESEND_API_KEY,
+  EMAIL_FROM: process.env.EMAIL_FROM,
+  
   // Cloudinary Configuration
   CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME,
   CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY,
@@ -44,6 +48,14 @@ const checkRequiredEnvVars = () => {
   
   if (!process.env.CLOUDINARY_API_SECRET) {
     missing.push('CLOUDINARY_API_SECRET');
+  }
+  
+  if (!process.env.RESEND_API_KEY) {
+    missing.push('RESEND_API_KEY');
+  }
+  
+  if (!process.env.EMAIL_FROM) {
+    missing.push('EMAIL_FROM');
   }
   
   // Only show warnings if there are actually missing variables

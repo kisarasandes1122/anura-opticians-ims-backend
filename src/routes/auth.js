@@ -6,7 +6,9 @@ const {
   loginUser,
   getCurrentUser,
   updateProfile,
-  changePassword
+  changePassword,
+  requestPasswordReset,
+  resetPassword
 } = require('../controllers/authController');
 
 // Import middleware
@@ -16,7 +18,9 @@ const { auth } = require('../middleware/auth');
 const {
   loginValidation,
   updateProfileValidation,
-  changePasswordValidation
+  changePasswordValidation,
+  forgotPasswordValidation,
+  resetPasswordValidation
 } = require('../utils/validation');
 
 // @route   POST /api/auth/login
@@ -38,5 +42,15 @@ router.put('/profile', auth, updateProfileValidation, updateProfile);
 // @desc    Change user password
 // @access  Private
 router.put('/change-password', auth, changePasswordValidation, changePassword);
+
+// @route   POST /api/auth/forgot-password
+// @desc    Request password reset (sends email to admin)
+// @access  Public
+router.post('/forgot-password', forgotPasswordValidation, requestPasswordReset);
+
+// @route   POST /api/auth/reset-password
+// @desc    Reset password with token
+// @access  Public
+router.post('/reset-password', resetPasswordValidation, resetPassword);
 
 module.exports = router; 
