@@ -273,8 +273,8 @@ const deleteBrand = async (req, res) => {
     }
 
     // Check if brand has associated items
-    const Item = require('../models/Item');
-    const itemCount = await Item.countDocuments({ brand: brand._id });
+    const Product = require('../models/Product');
+          const itemCount = await Product.countDocuments({ brand: brand._id });
 
     if (itemCount > 0) {
       return res.status(400).json({

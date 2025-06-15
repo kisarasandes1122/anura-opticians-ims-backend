@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const itemSchema = new mongoose.Schema({
+const productSchema = new mongoose.Schema({
   brand: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Brand',
@@ -39,6 +39,6 @@ const itemSchema = new mongoose.Schema({
 });
 
 // Compound index for brand and model number (should be unique together)
-itemSchema.index({ brand: 1, modelNumber: 1 }, { unique: true });
+productSchema.index({ brand: 1, modelNumber: 1 }, { unique: true });
 
-module.exports = mongoose.model('Item', itemSchema); 
+module.exports = mongoose.model('Product', productSchema);
