@@ -83,6 +83,7 @@ const adminOrSaleAuth = (req, res, next) => {
 module.exports = {
   auth,
   adminAuth,
+  adminOnly: adminAuth,
   saleAuth,
   adminOrSaleAuth
 }; 

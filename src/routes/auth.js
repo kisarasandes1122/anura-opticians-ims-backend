@@ -8,11 +8,13 @@ const {
   updateProfile,
   changePassword,
   requestPasswordReset,
-  resetPassword
+  resetPassword,
+  adminChangeUserPassword,
+  getSalesUser
 } = require('../controllers/authController');
 
 // Import middleware
-const { auth } = require('../middleware/auth');
+const { auth, adminOnly } = require('../middleware/auth');
 
 // Import validation
 const {
@@ -20,7 +22,8 @@ const {
   updateProfileValidation,
   changePasswordValidation,
   forgotPasswordValidation,
-  resetPasswordValidation
+  resetPasswordValidation,
+  adminChangePasswordValidation
 } = require('../utils/validation');
 
 // @route   POST /api/auth/login
@@ -42,6 +45,16 @@ router.put('/profile', auth, updateProfileValidation, updateProfile);
 // @desc    Change user password
 // @access  Private
 router.put('/change-password', auth, changePasswordValidation, changePassword);
+
+// @route   PUT /api/auth/admin/change-user-password
+// @desc    Admin change another user's password
+// @access  Private (Admin only)
+router.put('/admin/change-user-password', auth, adminOnly, adminChangePasswordValidation, adminChangeUserPassword);
+
+// @route   GET /api/auth/admin/sales-user
+// @desc    Get sales user info for admin
+// @access  Private (Admin only)
+router.get('/admin/sales-user', auth, adminOnly, getSalesUser);
 
 // @route   POST /api/auth/forgot-password
 // @desc    Request password reset (sends email to admin)

@@ -388,11 +388,100 @@ const resetPassword = async (req, res) => {
   }
 };
 
+// @desc    Admin change another user's password
+// @route   PUT /api/auth/admin/change-user-password
+// @access  Private (Admin only)
+const adminChangeUserPassword = async (req, res) => {
+  try {
+    // Check for validation errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Validation failed',
+        errors: errors.array()
+      });
+    }
+
+    const { userId, newPassword } = req.body;
+    
+    // Find the user to update
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    // Update password
+    user.password = newPassword;
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: `Password changed successfully for ${user.name} (${user.email})`
+    });
+
+  } catch (error) {
+    console.error('Admin change user password error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error while changing user password',
+      error: process.env.NODE_ENV === 'development' ? error.message : {}
+    });
+  }
+};
+
+// @desc    Get sales user info for admin
+// @route   GET /api/auth/admin/sales-user
+// @access  Private (Admin only)
+const getSalesUser = async (req, res) => {
+  try {
+    // Find the sales user
+    const salesUser = await User.findOne({ role: 'Sale' }).select('-password');
+    
+    if (!salesUser) {
+      return res.status(404).json({
+        success: false,
+        message: 'Sales user not found'
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Sales user retrieved successfully',
+      data: {
+        user: {
+          id: salesUser._id,
+          name: salesUser.name,
+          email: salesUser.email,
+          role: salesUser.role,
+          isActive: salesUser.isActive,
+          lastLogin: salesUser.lastLogin,
+          createdAt: salesUser.createdAt,
+          updatedAt: salesUser.updatedAt
+        }
+      }
+    });
+
+  } catch (error) {
+    console.error('Get sales user error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error while fetching sales user',
+      error: process.env.NODE_ENV === 'development' ? error.message : {}
+    });
+  }
+};
+
 module.exports = {
   loginUser,
   getCurrentUser,
   updateProfile,
   changePassword,
   requestPasswordReset,
-  resetPassword
+  resetPassword,
+  adminChangeUserPassword,
+  getSalesUser
 }; 
