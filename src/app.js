@@ -5,7 +5,7 @@ const morgan = require('morgan');
 require('dotenv').config();
 
 const logger = require('./config/logger');
-const { generalLimiter, helmetConfig } = require('./middleware/security');
+const { generalLimiter, generalLimiterSkipOptions, helmetConfig } = require('./middleware/security');
 
 const app = express();
 
@@ -21,22 +21,73 @@ app.use(compression());
 // HTTP request logging
 app.use(morgan('combined', { stream: logger.stream }));
 
-// Rate limiting
-app.use(generalLimiter);
-
-// CORS middleware
+// CORS middleware - Handle preflight requests (BEFORE rate limiting)
 app.use(cors({
-  origin: [
-    process.env.FRONTEND_URL || 'http://localhost:3000',
-    'http://192.168.8.153:3000',
-    'https://anura-opticians-ims.vercel.app/',
-    'http://localhost:3000'
-  ],
+  origin: function (origin, callback) {
+    const allowedOrigins = [
+      process.env.FRONTEND_URL || 'http://localhost:3000',
+      'http://192.168.8.153:3000',
+      'https://anura-opticians-ims.vercel.app',
+      'http://localhost:3000'
+    ];
+    
+    // Allow requests with no origin (mobile apps, etc.)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    } else {
+      return callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   optionsSuccessStatus: 200,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'HEAD', 'PATCH'],
+  allowedHeaders: [
+    'Content-Type', 
+    'Authorization', 
+    'X-Requested-With',
+    'Accept',
+    'Origin',
+    'Cache-Control',
+    'X-File-Name'
+  ],
+  exposedHeaders: ['Content-Length', 'X-Foo', 'X-Bar'],
+  preflightContinue: false
 }));
+
+// Explicitly handle preflight requests
+app.options('*', cors());
+
+// Rate limiting (AFTER CORS) - Skip OPTIONS requests
+app.use(generalLimiterSkipOptions);
+
+// Additional CORS headers as fallback
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  const allowedOrigins = [
+    process.env.FRONTEND_URL || 'http://localhost:3000',
+    'http://192.168.8.153:3000',
+    'https://anura-opticians-ims.vercel.app',
+    'http://localhost:3000'
+  ];
+  
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  }
+  
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, HEAD, PATCH');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin, Cache-Control, X-File-Name');
+  
+  if (req.method === 'OPTIONS') {
+    res.setHeader('Access-Control-Max-Age', '86400'); // 24 hours
+    res.status(200).end();
+    return;
+  }
+  
+  next();
+});
 
 // Body parsing middleware
 app.use(express.json({ 

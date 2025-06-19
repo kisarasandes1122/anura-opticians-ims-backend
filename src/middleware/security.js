@@ -19,12 +19,28 @@ const createRateLimiter = (windowMs, max, message) => {
   });
 };
 
-// General rate limiter - 100 requests per 15 minutes
+// General rate limiter - 200 requests per 15 minutes
 const generalLimiter = createRateLimiter(
   parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000, // 15 minutes
-  parseInt(process.env.RATE_LIMIT_MAX) || 100, // 100 requests per window
+  parseInt(process.env.RATE_LIMIT_MAX) || 200, // 200 requests per window
   'Too many requests from this IP, please try again later.'
 );
+
+// Rate limiter that excludes CORS preflight requests
+const generalLimiterSkipOptions = rateLimit({
+  windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000, // 15 minutes
+  max: parseInt(process.env.RATE_LIMIT_MAX) || 100, // 100 requests per window
+  message: {
+    success: false,
+    message: 'Too many requests from this IP, please try again later.',
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  skipSuccessfulRequests: false,
+  skipFailedRequests: false,
+  // Skip OPTIONS (preflight) requests
+  skip: (req) => req.method === 'OPTIONS'
+});
 
 // Strict rate limiter for auth endpoints - 10 requests per 15 minutes
 const authLimiter = createRateLimiter(
@@ -72,6 +88,7 @@ const helmetConfig = helmet({
 
 module.exports = {
   generalLimiter,
+  generalLimiterSkipOptions,
   authLimiter,
   passwordResetLimiter,
   uploadLimiter,
