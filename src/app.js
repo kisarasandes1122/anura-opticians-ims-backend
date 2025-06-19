@@ -8,9 +8,14 @@ const app = express();
 app.use(cors({
   origin: [
     process.env.FRONTEND_URL || 'http://localhost:3000',
-    'http://192.168.8.153:3000'
+    'http://192.168.8.153:3000',
+    'http://192.168.43.140:3000',
+    'http://localhost:3000'
   ],
-  credentials: true
+  credentials: true,
+  optionsSuccessStatus: 200,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
 
 app.use(express.json({ limit: '10mb' }));
