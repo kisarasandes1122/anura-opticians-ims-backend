@@ -15,6 +15,7 @@ const {
 
 // Import middleware
 const { auth, adminOnly } = require('../middleware/auth');
+const { authLimiter, passwordResetLimiter } = require('../middleware/security');
 
 // Import validation
 const {
@@ -29,7 +30,7 @@ const {
 // @route   POST /api/auth/login
 // @desc    Authenticate user & get token
 // @access  Public
-router.post('/login', loginValidation, loginUser);
+router.post('/login', authLimiter, loginValidation, loginUser);
 
 // @route   GET /api/auth/me
 // @desc    Get current user profile
@@ -59,11 +60,11 @@ router.get('/admin/sales-user', auth, adminOnly, getSalesUser);
 // @route   POST /api/auth/forgot-password
 // @desc    Request password reset (sends email to admin)
 // @access  Public
-router.post('/forgot-password', forgotPasswordValidation, requestPasswordReset);
+router.post('/forgot-password', passwordResetLimiter, forgotPasswordValidation, requestPasswordReset);
 
 // @route   POST /api/auth/reset-password
 // @desc    Reset password with token
 // @access  Public
-router.post('/reset-password', resetPasswordValidation, resetPassword);
+router.post('/reset-password', passwordResetLimiter, resetPasswordValidation, resetPassword);
 
 module.exports = router; 

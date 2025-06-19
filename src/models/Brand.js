@@ -32,7 +32,4 @@ const brandSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Index for faster queries
-brandSchema.index({ name: 1 });
-
 module.exports = mongoose.model('Brand', brandSchema); 
